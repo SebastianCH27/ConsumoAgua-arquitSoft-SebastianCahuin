@@ -160,6 +160,25 @@ de las operaciones, datos y condiciones de acceso a su API.
 El mecanismo de acceso a suministros reales deberá verificar
 la autorización del usuario. El código de suministro y el DNI ficticio
 se utilizarán para demostrar el acceso durante las pruebas.
+## Capacidad y crecimiento
+
+El sistema debe atender al menos 5000 usuarios activos simultáneamente
+entre la aplicación móvil y la plataforma web, manteniendo
+las condiciones de respuesta, exactitud y seguridad definidas
+en los atributos de calidad.
+
+La atención de consultas deberá continuar mientras se incorporan
+nuevas lecturas y se evalúan las condiciones de alerta.
+
+La arquitectura permitirá ampliar la capacidad cuando aumente
+la demanda. La infraestructura necesaria y la capacidad superior
+a 5000 usuarios se determinarán mediante pruebas.
+
+Esta cifra representa un requisito del sistema, no una capacidad
+que ya haya sido implementada o demostrada.
+
+Los escenarios y criterios de evaluación se encuentran en
+[atributos de calidad](analisis-de-sistema/04-atributos-de-calidad.md).
 
 ## Arquitectura inicial
 La solución se organizará en tres capas:
