@@ -181,7 +181,8 @@ Los escenarios y criterios de evaluación se encuentran en
 [atributos de calidad](analisis-de-sistema/04-atributos-de-calidad.md).
 
 ## Arquitectura inicial
-La solución se organizará en tres capas:
+
+La propuesta inicial organiza las responsabilidades en tres capas:
 
 - Presentación: aplicación móvil, plataforma web y API REST propia.
 - Lógica de negocio: acceso, suministros, lecturas, cálculos,
@@ -189,13 +190,142 @@ La solución se organizará en tres capas:
 - Datos: almacenamiento y consulta de la información
   de nuestra plataforma.
 
-Un componente de integración permitirá comunicarse con el sistema
-de la empresa prestadora y manejar la fuente simulada durante
-las pruebas.
+Esta propuesta se conserva como antecedente en
+[arquitectura inicial](arquitectura/arquitectura-inicial.md).
+
+## Evolución arquitectónica en la Guía 03
+
+La Guía 03 profundiza en la organización de los módulos,
+las dependencias del código y la justificación de las decisiones.
+
+El backend se propone como un monolito modular,
+con cinco módulos funcionales:
+
+1. Acceso y suministros.
+2. Lecturas, consumo e historial.
+3. Tarifas, costos y proyecciones.
+4. Alertas, notificaciones y metas.
+5. Reportes y recomendaciones.
+
+La misma base de código permitirá ejecutar procesos
+de API y trabajadores de actualización por separado.
+
+Ambos reutilizarán las reglas y los casos de uso del núcleo.
+Su cantidad y recursos se determinarán mediante pruebas.
+
+Se aplicará Clean Architecture, distinguiendo:
+
+- Dominio: conceptos y reglas fundamentales.
+- Aplicación: casos de uso y contratos necesarios.
+- Infraestructura: persistencia, integración, caché
+  y ejecución técnica.
+- Presentación: interfaces y controladores de entrada.
+
+Los contratos de salida se definirán en Aplicación.
+Infraestructura implementará esos contratos mediante adaptadores.
+
+Las interfaces web y móvil utilizarán la API común
+y consultarán información incorporada a nuestra persistencia.
+
+La caché será selectiva y respetará autorizaciones,
+versiones e invalidación.
+
+La integración real y la simulación se separarán
+mediante contratos y adaptadores, manteniendo
+los datos de prueba fuera del entorno productivo.
+
+## Registros de decisión arquitectónica
+
+| ADR | Decisión | Drivers principales |
+|---|---|---|
+| [ADR-001](arquitectura/decisiones/ADR-001-monolito-modular.md) | Backend modular con procesos de actualización separados. | DA01, DA02 y DA12. |
+| [ADR-002](arquitectura/decisiones/ADR-002-clean-architecture.md) | Aplicación de Clean Architecture. | DA12. |
+| [ADR-003](arquitectura/decisiones/ADR-003-cache-consultas.md) | Caché selectiva para consultas de consumo. | DA01. |
+| [ADR-004](arquitectura/decisiones/ADR-004-integracion-lecturas.md) | Integración de fuentes de lecturas mediante contratos y adaptadores. | DA04. |
+
+Cada registro documenta contexto, decisión, alternativas,
+justificación, consecuencias y verificación prevista.
+
+Los drivers relacionados se detallan dentro de cada ADR.
+
+## Índice de entregables de la Guía 03
+
+| N.º | Entregable | Ubicación |
+|---|---|---|
+| 1 | Necesidad y caso de negocio | Sección «Análisis del caso de negocio» de este README. |
+| 2 | Requisitos del sistema | [Requisitos funcionales](analisis-de-sistema/03-requisitos-funcionales.md) y [restricciones](analisis-de-sistema/05-restricciones.md). |
+| 3 | Atributos de calidad | [Atributos y escenarios de evaluación](analisis-de-sistema/04-atributos-de-calidad.md). |
+| 4 | Drivers arquitectónicos | [Drivers y evolución de la propuesta](analisis-de-sistema/06-drivers-arquitectonicos.md). |
+| 5 | Decisiones arquitectónicas | [Carpeta de ADR](arquitectura/decisiones/). |
+| 6 | Estilo arquitectónico | [Organización general y diagrama](arquitectura/estilo-arquitectonico.md). |
+
+Documentación de apoyo:
+
+- [Actores del sistema](analisis-de-sistema/01-actores.md).
+- [Historias de usuario](analisis-de-sistema/02-historias-de-usuario.md).
+- [Arquitectura inicial](arquitectura/arquitectura-inicial.md).
+- [Enfoque arquitectónico y dependencias del código](arquitectura/enfoque/enfoque-arquitectonico.md).
+
+El análisis identifica:
+
+- 3 actores.
+- 22 historias de usuario.
+- 39 requisitos funcionales.
+- 10 atributos de calidad.
+- 10 restricciones.
+- 12 drivers arquitectónicos.
+
+La evolución de la Guía 03 incorpora cuatro ADR,
+el estilo arquitectónico y el enfoque de dependencias.
+
+## Diagramas de la propuesta
+
+Los diagramas se encuentran dentro de los documentos
+y utilizan Mermaid para su visualización en GitHub.
+
+- El diagrama del estilo muestra la organización general,
+  los procesos de API y actualización y los recursos utilizados.
+- El diagrama del enfoque muestra las dependencias del código
+  y la ubicación de los contratos y sus implementaciones.
+
+Los módulos funcionales no representan automáticamente
+servicios independientes.
+
+La cantidad de instancias y las tecnologías concretas
+permanecen pendientes de selección y validación.
 
 ## Organización del repositorio
-- analisis-de-sistema/: actores, historias de usuario, requisitos
-  funcionales, atributos de calidad, restricciones y drivers.
-- arquitectura/: diagrama y explicación de la arquitectura inicial.
-- README.md: presentación y análisis del caso de negocio.
-- .gitignore: reglas para excluir archivos del control de versiones.
+
+| Ubicación | Contenido |
+|---|---|
+| `analisis-de-sistema/` | Actores, historias, requisitos, atributos de calidad, restricciones y drivers. |
+| `arquitectura/arquitectura-inicial.md` | Propuesta inicial de tres capas. |
+| `arquitectura/decisiones/` | Cuatro registros de decisión arquitectónica. |
+| `arquitectura/estilo-arquitectonico.md` | Organización general y diagrama de funcionamiento. |
+| `arquitectura/enfoque/` | Responsabilidades y dependencias de Clean Architecture. |
+| `README.md` | Presentación, caso de negocio e índice de la documentación. |
+| `.gitignore` | Reglas de exclusión del control de versiones. |
+
+## Estado del proyecto
+
+El repositorio contiene el análisis y la propuesta arquitectónica.
+
+La implementación del sistema de agua y sus pruebas
+están pendientes.
+
+Antes de habilitar datos reales deberán confirmarse
+la autorización y el contrato de la API externa,
+incluyendo formatos, identificadores, frecuencia,
+límites y recuperación de lecturas.
+
+También deberán definirse las tecnologías, los mecanismos
+de acceso para usuarios reales, las reglas pendientes
+y la infraestructura de ejecución.
+
+Las pruebas previstas comprobarán cálculos, permisos,
+integración, recuperación, usabilidad, consistencia
+entre interfaces y capacidad.
+
+El requisito de 5000 usuarios simultáneos orienta el diseño.
+Su cumplimiento deberá demostrarse con pruebas;
+la documentación no constituye evidencia de capacidad.
