@@ -22,7 +22,7 @@ a partir de necesidades concretas del proyecto.
 | DA09 | Generar alertas y evaluar metas con datos suficientes, evitando avisos duplicados. | RF22, RF23, RF24, RF25, RF26, RF27, RF34; AC03 | Requiere organizar las reglas de evaluación, identificar los eventos detectados y almacenar su estado. El procesamiento debe considerar la calidad y frecuencia de las lecturas. |
 | DA10 | Generar reportes sin comprometer la atención de las consultas principales. | RF29; AC01 | Requiere controlar el volumen de los reportes y los recursos que utilizan. Se evaluará si necesitan ejecución en segundo plano según su costo y los resultados de las pruebas. |
 | DA11 | Probar la solución con una fuente simulada y sustituirla posteriormente por la integración real. | RF38, RF39; AC07, AC10; RC04, RC07 | Requiere una interfaz interna común para las fuentes de lecturas y adaptadores separados. Las reglas de consumo, costos y alertas deben funcionar independientemente del proveedor concreto. |
-| DA12 | Facilitar cambios en las reglas y mantener responsabilidades claras. | AC10; RC02 | Determina la separación en presentación, lógica de negocio y datos, junto con módulos que tengan funciones delimitadas e interfaces explícitas. |
+| DA12 | Facilitar cambios en las reglas de consumo, tarifas, proyecciones, alertas e integración, manteniendo responsabilidades claras. | AC10: Mantenibilidad; RC02: Organización inicial en tres capas | Requiere módulos delimitados, contratos explícitos y dependencias dirigidas hacia el núcleo. Las reglas y los casos de uso deben poder probarse independientemente de las interfaces web y móvil, la base de datos y la implementación concreta de la fuente de lecturas. |
 
 ## 2. Decisiones iniciales derivadas
 
@@ -102,6 +102,47 @@ se actualizarán las historias y requisitos afectados.
 Por ejemplo, si un reporte se genera de forma diferida,
 se deberá definir cómo consultar su estado y descargarlo
 cuando esté disponible.
+
+### Evolución de la propuesta en la Guía 03
+
+La arquitectura inicial de tres capas constituye el punto de partida.
+En esta etapa se precisarán los límites de los módulos, las
+dependencias internas y las decisiones necesarias para responder
+a los drivers del sistema.
+
+Para responder a DA12 se propone aplicar Clean Architecture,
+distinguiendo Dominio, Aplicación, Infraestructura y Presentación.
+
+El dominio contendrá las reglas fundamentales de lecturas, consumo,
+tarifas y demás conceptos del negocio. La aplicación coordinará
+los casos de uso mediante contratos del núcleo. Infraestructura
+implementará el acceso a datos y los adaptadores de integración.
+Presentación proporcionará las interfaces de entrada y salida.
+
+Las aplicaciones web y móvil utilizarán la API común del backend,
+manteniendo las mismas reglas y versiones de resultados.
+
+Se documentarán inicialmente las siguientes decisiones mediante ADR:
+
+- Organización del backend como monolito modular y separación
+  de la ejecución de consultas y trabajos de actualización.
+- Aplicación de Clean Architecture para controlar las dependencias.
+- Estrategia de caché selectiva para consultas, considerando
+  permisos por suministro, versiones de datos e invalidación.
+- Integración con la fuente de lecturas mediante contratos
+  y adaptadores para los entornos real y simulado.
+
+Los procesos de actualización, cálculo y evaluación de alertas
+utilizarán las mismas reglas del núcleo. Su ejecución y recuperación
+deberán conservar la integridad y trazabilidad de la información.
+
+La meta de al menos 5000 usuarios activos simultáneamente orientará
+las decisiones de capacidad. Su cumplimiento deberá comprobarse
+mediante pruebas sobre una implementación e infraestructura
+documentadas.
+
+Los ADR indicarán los drivers relacionados, las alternativas,
+la justificación y las consecuencias de cada decisión.
 
 ## 3. Aspectos pendientes de precisar
 
