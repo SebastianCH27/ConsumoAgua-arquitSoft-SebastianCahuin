@@ -1,314 +1,145 @@
 # Base de código del sistema de consumo de agua
 
-Esta carpeta contiene código propio del proyecto de consumo de agua.
-Desarrolla por etapas la propuesta de Clean Architecture registrada
-en los documentos del repositorio.
+Código propio en TypeScript para desarrollar y comprobar las reglas del proyecto de consumo de agua. Su organización sigue la propuesta de Clean Architecture documentada en el repositorio.
 
-## Primera etapa
+## Requisitos y ejecución
 
-Se implementa la conversión entre litros y metros cúbicos de RF11.
-Se valida el valor numérico y la unidad antes de la conversión.
+Se requiere **Node.js 22 o superior** y npm.
 
-La función recibe un consumo disponible. No representa datos
-faltantes como cero ni calcula consumos a partir de lecturas.
-El cálculo a partir de lecturas se desarrolla en una regla separada.
+En Windows CMD, entra en esta carpeta:
 
-## Segunda etapa: modelo de lecturas
+```cmd
+cd /d C:\Users\HP\Desktop\ConsumoAgua-arquitSoft-SebastianCahuin\boilerplate-agua
+```
 
-Se incorpora el modelo relacionado con RF06 y las validaciones
-estructurales de RF07. Conserva identificadores, suministro,
-medidor cuando corresponda, fuente, fechas, valor, unidad y tipo.
-
-Se distinguen lecturas acumuladas y consumos por intervalo.
-Los intervalos requieren una fecha inicial anterior a la final.
-
-Las fechas internas utilizan el formato ISO en UTC con milisegundos.
-El adaptador de integración deberá normalizar las fechas del proveedor.
-
-La lectura creada conserva sus datos aunque se modifique el objeto
-utilizado para crearla.
-
-## Tercera etapa: consumo entre lecturas acumuladas
-
-Se incorpora el cálculo de diferencias correspondiente a una parte de RF10.
-Las lecturas deben pertenecer al mismo suministro, fuente, medidor
-y secuencia continua de medición confirmada.
-
-El campo `secuenciaMedidorId` identifica esa continuidad. Su asignación
-deberá basarse en información confirmada de la integración o administración,
-y actualizarse después de reinicios o cambios de medidor.
-
-Se exigen registros distintos y fechas de medición en orden creciente.
-El resultado incluye consumo en litros y metros cúbicos,
-fechas utilizadas e identificadores de las lecturas.
-
-Si faltan lecturas, no se confirma la continuidad, las lecturas son
-incompatibles o el contador disminuye, se devuelve `no_calculable`
-con su motivo. Los datos faltantes no se convierten en consumo cero.
-
-El cálculo cubre el intervalo entre dos lecturas compatibles.
-La quinta etapa permite comparar la cobertura temporal disponible
-con un periodo solicitado.
-
-### Operaciones decimales compartidas
-
-La representación en litros y la conversión del resultado se reúnen
-en `src/dominio/calculo-decimal.ts`.
-Los cálculos entre lecturas acumuladas y por intervalos
-utilizan estas funciones compartidas.
-
-## Cuarta etapa: consumo por intervalos
-
-Se incorpora la agregación de consumos por intervalos de RF10.
-Las lecturas se validan y deben pertenecer al mismo suministro y fuente.
-Se ordenan por su fecha inicial sin modificar la lista recibida.
-
-El cálculo admite intervalos contiguos y unidades compatibles.
-Conserva las fechas que delimitan los datos y los identificadores utilizados.
-
-Si existen huecos entre los intervalos, devuelve `incompleto`,
-el consumo observado y los tramos sin datos. No estima el consumo faltante.
-
-Los registros duplicados y los intervalos superpuestos se rechazan
-con estado `no_calculable` y su motivo. La ausencia de lecturas
-también es no calculable; un intervalo válido con consumo cero sí se admite.
-
-La cobertura se refiere al tramo delimitado por las lecturas recibidas.
-La quinta etapa añade la comprobación frente al periodo seleccionado.
-
-## Quinta etapa: periodos y cobertura temporal
-
-Se incorpora una parte de RF12 y RF13: la definición de un periodo
-y la evaluación de los tramos disponibles frente a sus fechas.
-El periodo debe tener un inicio anterior al fin y fechas internas UTC válidas.
-Las lecturas y los periodos comparten el validador de `src/dominio/fecha-utc.ts`.
-
-La evaluación detecta datos faltantes al inicio, en medio y al final.
-Si no hay tramos disponibles, todo el periodo queda sin datos.
-El resultado indica cobertura `completo` o `incompleto`
-y conserva el periodo solicitado y los tramos faltantes.
-
-Esta función solo evalúa fechas. Los tramos deberán provenir de datos
-validados y compatibles del mismo suministro, seleccionados por el caso de uso.
-La unión temporal de tramos superpuestos no suma sus cantidades
-ni resuelve duplicados; el cálculo de consumos por intervalo
-sigue rechazando registros duplicados y solapamientos.
-
-Se limita la cobertura a las fechas solicitadas, sin prorratear
-ni inventar cantidades. La sexta etapa utiliza esta cobertura
-para calcular consumos por intervalos dentro de un periodo solicitado.
-La configuración de periodos de cada suministro también está pendiente.
-
-## Sexta etapa: consumo de un periodo mediante intervalos
-
-Se incorpora una parte de RF10, RF12 y RF13: el cálculo del consumo
-correspondiente a un periodo solicitado utilizando registros por intervalo.
-La regla se encuentra en `src/dominio/consumo-periodo-intervalos.ts`.
-
-Se validan el periodo y las lecturas recibidas. Se excluyen los intervalos
-externos y los que solo tocan los límites sin entrar en el periodo.
-Las lecturas seleccionadas deben pertenecer al mismo suministro y fuente.
-La suma reutiliza las validaciones de duplicados y solapamientos.
-
-El resultado conserva el periodo solicitado, las fechas que delimitan
-los datos utilizados (`desde` y `hasta`) y los identificadores de las lecturas.
-Si hay huecos al inicio, en medio o al final, devuelve `incompleto`,
-el consumo observado y los tramos sin datos.
-
-Si no hay datos del periodo, devuelve `no_calculable`; un consumo
-conocido de cero sí es válido. Si una lectura cruza un límite del periodo,
-también devuelve `no_calculable` con su motivo: no puede determinarse
-qué parte de su cantidad corresponde a las fechas solicitadas.
-No se distribuye el consumo suponiendo una tasa constante.
-
-La regla trabaja con una lista proporcionada al dominio. La consulta
-de repositorios y la selección del suministro autorizado desde un caso
-de uso están pendientes. La séptima etapa incorpora el cálculo por periodo
-mediante lecturas acumuladas.
-
-## Séptima etapa: consumo de un periodo mediante lecturas acumuladas
-
-Se incorpora una parte de RF10, RF12 y RF13 en
-`src/dominio/consumo-periodo-acumulado.ts`.
-Se seleccionan las lecturas acumuladas dentro del periodo, incluyendo
-las ubicadas exactamente en sus límites, y se ordenan sin modificar la entrada.
-
-Se requieren al menos dos lecturas. Antes de calcular la diferencia entre
-la primera y la última, se revisan todos los pares consecutivos.
-Deben conservar suministro, fuente, medidor y secuencia continua confirmada,
-con fechas crecientes y valores de contador que no disminuyan.
-
-`lecturasUsadas` identifica los dos extremos utilizados para la diferencia.
-`lecturasRevisadas` conserva todos los registros comprobados, incluidos
-los intermedios. Los duplicados y las lecturas con la misma hora de medición
-se rechazan, al igual que las incompatibilidades y los resultados fuera de rango.
-
-Dos extremos compatibles permiten conocer el consumo total entre sus fechas
-aunque no haya lecturas intermedias. Esto no permite determinar
-cómo se distribuyó el consumo por hora o por día.
-
-Si los extremos no coinciden con los límites solicitados, se devuelve
-`incompleto`, el consumo del tramo conocido y las fechas faltantes
-al inicio o al final. Si hay menos de dos lecturas dentro del periodo,
-se devuelve `no_calculable`; no se interpolan valores con lecturas externas.
-
-Un consumo conocido de cero es válido. Las disminuciones del contador
-y los cambios de medidor o secuencia producen un estado no calculable
-con su motivo; esta etapa no agrega consumos de secuencias diferentes.
-
-La consulta de suministros autorizados y la recuperación de lecturas
-desde repositorios siguen pendientes.
-
-## Octava etapa: modelo de tarifa simple de prueba
-
-Se incorpora una parte de RF33 como base para las estimaciones de RF15.
-El modelo se encuentra en `src/dominio/tarifa-consumo.ts` y conserva
-identificador, versión, suministro, moneda, precio por metro cúbico
-y fechas de vigencia.
-
-En esta etapa se admite PEN y un precio expresado en céntimos enteros
-no negativos dentro del rango numérico seguro. Por ejemplo,
-250 céntimos equivalen a S/ 2.50 por metro cúbico.
-Los precios utilizados en las pruebas son ficticios.
-Un precio configurado de cero es válido; un precio ausente se rechaza.
-
-Las fechas utilizan el formato UTC interno. La fecha final, si se configura,
-debe ser posterior a la inicial; si se omite, la vigencia queda abierta.
-Al aplicar la tarifa, la fecha final se considerará un límite exclusivo.
-La tarifa creada conserva sus datos aunque cambie el objeto de entrada.
-
-Esta etapa valida el modelo. La novena aplica la tarifa al consumo
-y calcula el importe estimado.
-Los componentes adicionales, tramos tarifarios, precios con fracciones
-de céntimo y el almacenamiento histórico de versiones siguen pendientes.
-No se ha implementado la administración de tarifas ni la facturación oficial.
-
-## Novena etapa: estimación del costo de consumo
-
-Se incorpora una parte de RF15 y RF16 en `src/dominio/costo-consumo.ts`.
-La función recibe resultados de nuestras reglas de consumo por periodo,
-calculados mediante intervalos o lecturas acumuladas, y una tarifa de prueba.
-
-La tarifa debe corresponder al suministro y estar vigente durante todo
-el tramo conocido entre `desde` y `hasta`. La fecha final de vigencia
-es exclusiva: un consumo cuyo tramo termina exactamente en esa fecha
-puede estimarse, porque no incluye consumo posterior a ese límite.
-Si hay un cambio de tarifa dentro del tramo conocido, esta etapa
-devuelve `no_estimable`; el cálculo con varias versiones queda pendiente.
-
-El importe se expresa en céntimos enteros de PEN. Se multiplica
-el consumo en metros cúbicos por el precio configurado y se redondea
-una sola vez al céntimo más cercano; medio céntimo se redondea hacia arriba.
-Por ejemplo, 3 metros cúbicos a 250 céntimos producen 750 céntimos,
-equivalentes a S/ 7.50. Los precios de las pruebas son ficticios.
-
-El resultado conserva el consumo, el periodo, las lecturas utilizadas,
-los tramos sin datos, la tarifa aplicada y el concepto incluido.
-Para lecturas acumuladas también conserva todas las lecturas revisadas.
-La estimación mantiene sus datos aunque cambien los objetos de entrada.
-
-Si el consumo está incompleto, se estima únicamente la cantidad conocida
-y se conserva el estado `incompleto`, sin estimar el consumo faltante.
-Si el consumo no puede calcularse, falta una tarifa aplicable
-o el importe excede el rango numérico seguro, se devuelve `no_estimable`
-con su motivo. Un consumo conocido de cero o un precio configurado
-de cero sí permiten un importe de cero.
-
-Esta estimación incluye únicamente el concepto de consumo de agua.
-Los cargos adicionales, impuestos, tramos tarifarios y la facturación
-oficial quedan fuera de esta etapa.
-
-## Décima etapa: evaluación de consumo elevado
-
-Se incorpora una parte de RF22 y una base de configuración de RF34
-en `src/dominio/alerta-consumo.ts`.
-El criterio identifica su versión, suministro, periodo, límite,
-unidad y estado activo. Los límites de las pruebas son ficticios.
-
-La regla recibe resultados de nuestras funciones de consumo por periodo.
-Requiere cobertura completa y un criterio activo que corresponda
-al mismo suministro y a las mismas fechas del periodo solicitado.
-
-Los resultados posibles son:
-
-- `alerta`: el consumo supera estrictamente el límite configurado.
-- `sin_alerta`: el consumo es igual o inferior al límite.
-- `no_evaluable`: el consumo está incompleto o no puede calcularse,
-  o el criterio no está disponible, es inválido, está desactivado
-  o corresponde a otro suministro o periodo.
-
-Las unidades del límite se normalizan mediante las operaciones decimales
-compartidas. Límites equivalentes en litros y metros cúbicos
-producen el mismo resultado. Un límite configurado de cero es válido.
-
-La evaluación conserva el criterio y su versión, el suministro, el periodo,
-el consumo, el límite normalizado, el motivo y las lecturas utilizadas
-y revisadas. Los resultados mantienen sus datos aunque cambien las entradas.
-
-Esta etapa evalúa la condición de consumo elevado.
-El almacenamiento de avisos, su fecha de generación, el control
-de notificaciones duplicadas y la gestión de lectura están pendientes.
-Las reglas de posibles anomalías de RF23 también están pendientes.
-
-
-
-## Ejecución
-
-Se requiere Node.js 22 o superior.
-
-Desde la carpeta boilerplate-agua:
+Instala las dependencias:
 
 ```cmd
 npm install
+```
+
+Ejecuta las pruebas:
+
+```cmd
 npm run pruebas
 ```
 
-Las 79 pruebas verifican conversiones, modelos de lectura y tarifa,
-consumo acumulado y por intervalos, periodos, cobertura temporal
-y estimaciones de costo. También comprueban redondeo, vigencia de tarifas,
-datos incompletos, trazabilidad y rechazo de resultados fuera de rango.
-Se incluye la evaluación de consumo elevado, los criterios por periodo
-y la equivalencia de límites expresados en litros o metros cúbicos.
-Se ejecutan con Node.js después de compilar TypeScript.
+El comando compila TypeScript y ejecuta las pruebas con Node.js. Para compilar sin ejecutar pruebas:
 
-## Organización prevista
+```cmd
+npm run compilar
+```
 
-| Carpeta | Responsabilidad |
-|---|---|
-| `src/dominio/` | Modelos y reglas fundamentales del sistema de agua. |
-| `src/aplicacion/` | Casos de uso y contratos del núcleo. |
-| `src/infraestructura/` | Fuentes de datos, repositorios y otros adaptadores. |
-| `src/presentacion/` | Entradas y presentación de resultados. |
-| `pruebas/` | Verificaciones del dominio y los casos de uso. |
+**Resultado actual: 89 pruebas aprobadas y 0 fallidas.**
 
-## Alcance actual
+## Funciones implementadas
 
-La base verifica la conversión de unidades, el modelo de lecturas,
-el consumo entre lecturas acumuladas compatibles, la suma de intervalos
-y la cobertura temporal frente a un periodo solicitado.
-También calcula el consumo de un periodo utilizando registros por intervalo
-que quedan completamente dentro de sus límites y lecturas acumuladas compatibles.
-Se valida un modelo de tarifa simple de prueba con versión y vigencia.
-Se estima el costo del consumo conocido con una tarifa aplicable,
-conservando el importe en céntimos, la información utilizada
-y el estado de cobertura del periodo.
+| Función | Comportamiento | Requisitos relacionados |
+|---|---|---|
+| Conversión de unidades | Conversión entre litros y metros cúbicos; validación de valores y unidades. | RF11 |
+| Modelo de lecturas | Identificadores, suministro, fuente, fechas, tipo de medición, valor y unidad; validaciones estructurales. | Parte de RF06 y RF07 |
+| Consumo acumulado | Diferencia entre lecturas compatibles del mismo suministro, fuente, medidor y secuencia confirmada. | Parte de RF10 |
+| Consumo por intervalos | Suma de intervalos compatibles; rechazo de duplicados y solapamientos. | Parte de RF10 |
+| Periodos y cobertura | Validación de fechas y detección de tramos sin información. | Parte de RF12 y RF13 |
+| Consumo por periodo | Selección de lecturas y cálculo mediante intervalos o lecturas acumuladas. | Parte de RF10, RF12 y RF13 |
+| Tarifa simple | Precio en céntimos por metro cúbico, moneda PEN, versión y vigencia. | Parte de RF33 |
+| Costo estimado | Aplicación de una tarifa vigente al consumo conocido y redondeo final a céntimos. | Parte de RF15 y RF16 |
+| Consumo elevado | Comparación con un límite activo del suministro y periodo; conservación del criterio utilizado. | Parte de RF22 y RF34 |
+| Consulta del resumen | Autorización previa y coordinación del consumo, costo y evaluación de consumo elevado. | Apoya RF03 y las consultas implementadas |
 
-También se evalúa el consumo elevado para periodos completos,
-mediante criterios activos del suministro y periodo correspondientes.
-La evaluación devuelve alerta, ausencia de superación del límite
-o un estado no evaluable con su motivo.
+Estas funciones constituyen una implementación parcial del alcance del proyecto.
 
-La verificación del suministro registrado, el almacenamiento,
-el registro de rechazos y el control de duplicados al incorporar
-lecturas a la persistencia están pendientes.
+## Reglas de cálculo y trazabilidad
 
-También están pendientes los casos de uso para consultar suministros autorizados,
-la recuperación de lecturas desde repositorios, los demás requisitos,
-la API, las interfaces web y móvil,
-los trabajadores y la integración real.
+### Lecturas y fechas
 
-La capacidad de 5000 usuarios deberá medirse sobre el sistema completo.
-## Documentación
+Se distinguen lecturas acumuladas y consumos medidos por intervalo. Las fechas internas utilizan ISO en UTC con milisegundos, por ejemplo `2026-10-01T00:00:00.000Z`.
 
+Una lectura por intervalo necesita un inicio anterior a su fin. Una lectura acumulada no incluye inicio de intervalo.
+
+Para calcular diferencias acumuladas se exige una continuidad confirmada mediante `secuenciaMedidorId`. Su asignación deberá basarse en información del proveedor o de la administración.
+
+### Consumo y cobertura
+
+- Los datos ausentes no se convierten en consumo cero.
+- Los intervalos duplicados o superpuestos se rechazan.
+- Los huecos producen un resultado incompleto con el consumo observado y los tramos sin datos.
+- Una lectura por intervalo que cruza un límite del periodo no se prorratea: el resultado es no calculable.
+- En lecturas acumuladas se revisan todos los pares consecutivos antes de restar los extremos.
+- Dos extremos compatibles permiten conocer el total entre sus fechas, aunque no haya registros intermedios; no permiten conocer su distribución por hora.
+- Las disminuciones del contador o las secuencias incompatibles requieren revisión y no producen consumos negativos.
+- Los resultados conservan fechas y referencias a las lecturas utilizadas; los acumulados por periodo también conservan las lecturas revisadas.
+
+Las operaciones decimales compartidas utilizan la representación decimal de los valores numéricos recibidos y rechazan resultados fuera del rango admitido.
+
+### Tarifas y costos
+
+Las tarifas de prueba utilizan PEN y precios en céntimos enteros por metro cúbico. Por ejemplo, 250 céntimos equivalen a S/ 2.50 por metro cúbico. Los precios son ficticios.
+
+La tarifa debe pertenecer al suministro y cubrir todo el tramo conocido. Su fecha final es exclusiva; un tramo puede terminar exactamente en esa fecha. El cálculo con varias versiones dentro del tramo está pendiente.
+
+El importe se redondea una sola vez al céntimo más cercano; medio céntimo se redondea hacia arriba. Un consumo conocido de cero o un precio configurado de cero permiten un importe de cero.
+
+La estimación conserva consumo, lecturas, tarifa y concepto incluido. Si hay huecos, estima solamente el consumo conocido y mantiene el estado incompleto. El concepto implementado es **consumo de agua**.
+
+### Consumo elevado
+
+La evaluación requiere un periodo completo y un criterio activo del mismo suministro y periodo. Los límites pueden expresarse en litros o metros cúbicos.
+
+- `alerta`: el consumo supera estrictamente el límite.
+- `sin_alerta`: el consumo es igual o inferior al límite.
+- `no_evaluable`: faltan datos completos o un criterio aplicable.
+
+La evaluación conserva la versión del criterio y las lecturas utilizadas y revisadas. El registro de notificaciones y la detección de posibles anomalías están pendientes.
+
+## Caso de uso de consulta del resumen
+
+`ConsultarResumenConsumo` se encuentra en `src/aplicacion/consultar-resumen-consumo.ts`.
+
+1. Valida y conserva los parámetros de la solicitud.
+2. Comprueba el permiso del usuario sobre el suministro.
+3. Recupera datos mediante el contrato de repositorio únicamente si existe permiso.
+4. Verifica el suministro, las lecturas y la identificación de la versión de datos.
+5. Coordina consumo por periodo, costo estimado y evaluación de consumo elevado.
+6. Devuelve los resultados con el suministro, periodo y versión consultados.
+
+Los contratos `AutorizacionConsulta` y `RepositorioConsultaAgua` se definen en `src/aplicacion/contratos-consulta.ts`. El contrato del repositorio exige lecturas y configuraciones de una misma versión consistente.
+
+La respuesta puede ser `consultado`, `solicitud_invalida`, `no_autorizado`, `no_disponible` o `error`. Una respuesta `consultado` puede contener resultados incompletos, no calculables, no estimables o no evaluables.
+
+Las pruebas utilizan usuarios ficticios e implementaciones controladas de los contratos. La acreditación de identidades reales y los adaptadores concretos están pendientes.
+
+## Organización del código
+
+| Carpeta | Responsabilidad | Estado |
+|---|---|---|
+| `src/dominio/` | Modelos, validaciones y reglas de cálculo. | Implementación parcial. |
+| `src/aplicacion/` | Caso de uso de consulta y contratos. | Implementación parcial. |
+| `pruebas/` | Pruebas del dominio y del caso de uso. | 89 pruebas aprobadas. |
+| `src/infraestructura/` | Repositorios, autorización y fuentes mediante adaptadores. | Pendiente. |
+| `src/presentacion/` | Entradas y presentación de resultados. | Pendiente. |
+
+Aplicación depende del dominio y de sus propios contratos. Infraestructura implementará esos contratos y la composición de la aplicación conectará sus dependencias.
+
+## Alcance de las pruebas
+
+Las pruebas verifican cálculos, validaciones, unidades equivalentes, cobertura, vigencia de tarifas, redondeo, trazabilidad y estados de información ausente o incompleta.
+
+También comprueban autorización antes de leer datos, ambas modalidades de consumo, fallos de los contratos y conservación de los parámetros durante operaciones asíncronas.
+
+Estas pruebas no demuestran integración con una API real, persistencia real ni capacidad para 5000 usuarios simultáneos.
+
+## Próxima etapa y trabajo pendiente
+
+La siguiente etapa incorporará adaptadores en memoria, una fuente simulada con datos ficticios y una demostración ejecutable.
+
+Permanecen pendientes los demás requisitos funcionales, la API propia, las interfaces web y móvil, los trabajadores, la persistencia real, la integración externa y la acreditación de identidades reales.
+
+También quedan pendientes tarifas con componentes adicionales o varias versiones, proyecciones, posibles anomalías, gestión de notificaciones y pruebas de capacidad del sistema completo.
+
+## Documentación relacionada
+
+- [Presentación general del proyecto](../README.md).
+- [Requisitos funcionales](../analisis-de-sistema/03-requisitos-funcionales.md).
 - [ADR-002: Clean Architecture](../arquitectura/decisiones/ADR-002-clean-architecture.md).
 - [Enfoque arquitectónico](../arquitectura/enfoque/enfoque-arquitectonico.md).
