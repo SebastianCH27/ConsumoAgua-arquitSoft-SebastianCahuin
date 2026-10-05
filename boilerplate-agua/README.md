@@ -13,6 +13,21 @@ La función recibe un consumo disponible. No representa datos
 faltantes como cero ni calcula consumos a partir de lecturas.
 Esas responsabilidades se incorporarán en las siguientes etapas.
 
+## Segunda etapa: modelo de lecturas
+
+Se incorpora el modelo relacionado con RF06 y las validaciones
+estructurales de RF07. Conserva identificadores, suministro,
+medidor cuando corresponda, fuente, fechas, valor, unidad y tipo.
+
+Se distinguen lecturas acumuladas y consumos por intervalo.
+Los intervalos requieren una fecha inicial anterior a la final.
+
+Las fechas internas utilizan el formato ISO en UTC con milisegundos.
+El adaptador de integración deberá normalizar las fechas del proveedor.
+
+La lectura creada conserva sus datos aunque se modifique el objeto
+utilizado para crearla.
+
 ## Ejecución
 
 Se requiere Node.js 22 o superior.
@@ -24,7 +39,8 @@ npm install
 npm run pruebas
 ```
 
-Las ocho pruebas verifican conversiones y el rechazo de entradas inválidas.
+Las 17 pruebas verifican conversiones, metadatos, validaciones de lecturas
+y restricciones de los intervalos.
 Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Organización prevista
@@ -39,9 +55,13 @@ Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Alcance actual
 
-Esta primera etapa verifica una regla del dominio. Los demás requisitos,
-la persistencia, la API, las interfaces web y móvil, los trabajadores
-y la integración real están pendientes de implementación.
+La base verifica la conversión de unidades y el modelo de lecturas.
+La verificación del suministro registrado, el almacenamiento,
+el registro de rechazos y el control de duplicados están pendientes.
+
+También están pendientes los cálculos a partir de lecturas,
+los demás requisitos, la API, las interfaces web y móvil,
+los trabajadores y la integración real.
 
 La capacidad de 5000 usuarios deberá medirse sobre el sistema completo.
 

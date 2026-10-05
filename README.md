@@ -306,13 +306,20 @@ permanecen pendientes de selección y validación.
 | `README.md` | Presentación, caso de negocio e índice de la documentación. |
 | `.gitignore` | Reglas de exclusión del control de versiones. |
 | `boilerplate-agua/` | Código propio del sistema de agua y sus pruebas; desarrollo por etapas. |
+
+
 ## Estado del proyecto
 
 El repositorio contiene el análisis, la propuesta arquitectónica
 y una primera base de código propio en `boilerplate-agua/`.
 
-Se implementó la conversión entre litros y metros cúbicos de RF11,
-con ocho pruebas aprobadas para conversiones y entradas inválidas.
+La base implementa la conversión entre litros y metros cúbicos de RF11
+e incorpora el modelo de lecturas relacionado con RF06
+y las validaciones estructurales de RF07.
+
+Se aprobaron 17 pruebas de conversiones y lecturas.
+El almacenamiento y la verificación del suministro registrado
+se incorporarán en las siguientes etapas.
 
 La implementación de los demás requisitos está pendiente.
 La base actual todavía no incorpora la API, la persistencia,

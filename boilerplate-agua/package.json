@@ -9,7 +9,7 @@
 },
 "scripts": {
     "compilar": "tsc -p tsconfig.json",
-    "pruebas": "npm run compilar && node --test dist/pruebas/unidades-consumo.test.js"
+    "pruebas": "npm run compilar && node --test dist/pruebas/unidades-consumo.test.js dist/pruebas/lectura-agua.test.js"
 },
 "devDependencies": {
     "@types/node": "22.18.6",
