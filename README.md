@@ -147,14 +147,17 @@ La base de código incluye:
 - Evaluación de consumo elevado mediante criterios activos por suministro y periodo.
 - Caso de uso `ConsultarResumenConsumo`, que comprueba permisos antes de recuperar datos y coordina consumo, costo y consumo elevado.
 - Contratos de autorización y consulta definidos en Aplicación y comprobados mediante implementaciones controladas de prueba.
+- Adaptadores en memoria, una fuente de datos ficticios y presentación de resultados por consola.
 
-**Resultado actual: 89 pruebas aprobadas y 0 fallidas.** Las pruebas utilizan datos, usuarios, tarifas y criterios ficticios.
+**Resultado actual: 97 pruebas aprobadas y 0 fallidas.** Las pruebas utilizan datos, usuarios, tarifas y criterios ficticios.
 
 El costo implementado incluye únicamente el concepto de consumo de agua con una tarifa simple aplicable al tramo conocido. Las alertas actuales evalúan consumo elevado sobre periodos completos; los resultados incompletos se informan como no evaluables.
 
-### Trabajo pendiente
+### Demostración ejecutable
 
-La siguiente etapa incorporará adaptadores en memoria, una fuente simulada y una demostración ejecutable.
+La demostración se ejecuta con `npm run demo` desde `boilerplate-agua/`. Presenta consumo normal, elevado, incompleto y una consulta sin permiso. Sus datos se almacenan en memoria y se reinician en cada ejecución.
+
+### Trabajo pendiente
 
 También permanecen pendientes la acreditación de identidades reales, la API propia, la persistencia real, los trabajadores, las interfaces web y móvil, la integración externa y los demás requisitos funcionales.
 

@@ -30,7 +30,7 @@ El comando compila TypeScript y ejecuta las pruebas con Node.js. Para compilar s
 npm run compilar
 ```
 
-**Resultado actual: 89 pruebas aprobadas y 0 fallidas.**
+**Resultado actual: 97 pruebas aprobadas y 0 fallidas.**
 
 ## Funciones implementadas
 
@@ -107,7 +107,7 @@ Los contratos `AutorizacionConsulta` y `RepositorioConsultaAgua` se definen en `
 
 La respuesta puede ser `consultado`, `solicitud_invalida`, `no_autorizado`, `no_disponible` o `error`. Una respuesta `consultado` puede contener resultados incompletos, no calculables, no estimables o no evaluables.
 
-Las pruebas utilizan usuarios ficticios e implementaciones controladas de los contratos. La acreditación de identidades reales y los adaptadores concretos están pendientes.
+Las pruebas utilizan usuarios ficticios, implementaciones controladas y adaptadores en memoria. La acreditación de identidades reales y los adaptadores de persistencia real están pendientes.
 
 ## Organización del código
 
@@ -115,11 +115,12 @@ Las pruebas utilizan usuarios ficticios e implementaciones controladas de los co
 |---|---|---|
 | `src/dominio/` | Modelos, validaciones y reglas de cálculo. | Implementación parcial. |
 | `src/aplicacion/` | Caso de uso de consulta y contratos. | Implementación parcial. |
-| `pruebas/` | Pruebas del dominio y del caso de uso. | 89 pruebas aprobadas. |
-| `src/infraestructura/` | Repositorios, autorización y fuentes mediante adaptadores. | Pendiente. |
-| `src/presentacion/` | Entradas y presentación de resultados. | Pendiente. |
+| `pruebas/` | Pruebas del dominio, caso de uso, adaptadores y presentación. | 97 pruebas aprobadas. |
+| `src/infraestructura/` | Repositorio y permisos en memoria y fuente de datos ficticios. | Demostración implementada. |
+| `src/presentacion/` | Presentación del resumen por consola. | Demostración implementada. |
+| `src/demo.ts` | Composición y ejecución de los escenarios ficticios. | Implementado. |
 
-Aplicación depende del dominio y de sus propios contratos. Infraestructura implementará esos contratos y la composición de la aplicación conectará sus dependencias.
+Aplicación depende del dominio y de sus propios contratos. Los adaptadores de Infraestructura implementan esos contratos. `src/demo.ts` conecta sus dependencias; la presentación recibe los resultados del caso de uso.
 
 ## Alcance de las pruebas
 
@@ -127,11 +128,32 @@ Las pruebas verifican cálculos, validaciones, unidades equivalentes, cobertura,
 
 También comprueban autorización antes de leer datos, ambas modalidades de consumo, fallos de los contratos y conservación de los parámetros durante operaciones asíncronas.
 
+Las ocho pruebas nuevas verifican los adaptadores en memoria, la conservación de las instantáneas, la selección por periodo y los cuatro escenarios de la demostración.
+
 Estas pruebas no demuestran integración con una API real, persistencia real ni capacidad para 5000 usuarios simultáneos.
 
-## Próxima etapa y trabajo pendiente
+## Demostración ejecutable
 
-La siguiente etapa incorporará adaptadores en memoria, una fuente simulada con datos ficticios y una demostración ejecutable.
+Desde `boilerplate-agua/`, ejecuta:
+
+```cmd
+npm run demo
+```
+
+`src/demo.ts` conecta el caso de uso con los permisos y el repositorio en memoria. La fuente `src/infraestructura/fuente-agua-simulada.ts` proporciona las lecturas y configuraciones ficticias iniciales. No realiza peticiones HTTP.
+
+| Escenario | Consumo observado | Costo estimado | Consumo elevado |
+|---|---|---|---|
+| Normal | 2000 L | S/ 5.00 | `sin_alerta` |
+| Elevado, con lecturas acumuladas | 3000 L | S/ 7.50 | `alerta` |
+| Incompleto | 1000 L | S/ 2.50, incompleto | `no_evaluable` |
+| Usuario sin permiso | Información no recuperada | Información no recuperada | `no_autorizado` en la consulta |
+
+El precio ficticio es S/ 2.50 por metro cúbico y el límite de prueba es 2500 litros para el periodo indicado. La presentación incluye la versión, las lecturas utilizadas y los tramos sin datos.
+
+Los datos se copian y conservan como instantáneas en memoria. El repositorio tiene una versión y una tarifa simple por suministro; no implementa la incorporación de actualizaciones ni un historial de revisiones. Los datos se reinician en cada ejecución y las fechas se muestran en UTC.
+
+## Trabajo pendiente
 
 Permanecen pendientes los demás requisitos funcionales, la API propia, las interfaces web y móvil, los trabajadores, la persistencia real, la integración externa y la acreditación de identidades reales.
 
