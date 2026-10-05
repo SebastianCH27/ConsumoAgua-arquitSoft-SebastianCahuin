@@ -95,9 +95,36 @@ ni resuelve duplicados; el cálculo de consumos por intervalo
 sigue rechazando registros duplicados y solapamientos.
 
 Se limita la cobertura a las fechas solicitadas, sin prorratear
-ni inventar cantidades. La obtención del consumo correspondiente
-a un periodo arbitrario y la selección de lecturas están pendientes.
+ni inventar cantidades. La sexta etapa utiliza esta cobertura
+para calcular consumos por intervalos dentro de un periodo solicitado.
 La configuración de periodos de cada suministro también está pendiente.
+
+## Sexta etapa: consumo de un periodo mediante intervalos
+
+Se incorpora una parte de RF10, RF12 y RF13: el cálculo del consumo
+correspondiente a un periodo solicitado utilizando registros por intervalo.
+La regla se encuentra en `src/dominio/consumo-periodo-intervalos.ts`.
+
+Se validan el periodo y las lecturas recibidas. Se excluyen los intervalos
+externos y los que solo tocan los límites sin entrar en el periodo.
+Las lecturas seleccionadas deben pertenecer al mismo suministro y fuente.
+La suma reutiliza las validaciones de duplicados y solapamientos.
+
+El resultado conserva el periodo solicitado, las fechas que delimitan
+los datos utilizados (`desde` y `hasta`) y los identificadores de las lecturas.
+Si hay huecos al inicio, en medio o al final, devuelve `incompleto`,
+el consumo observado y los tramos sin datos.
+
+Si no hay datos del periodo, devuelve `no_calculable`; un consumo
+conocido de cero sí es válido. Si una lectura cruza un límite del periodo,
+también devuelve `no_calculable` con su motivo: no puede determinarse
+qué parte de su cantidad corresponde a las fechas solicitadas.
+No se distribuye el consumo suponiendo una tasa constante.
+
+La regla trabaja con una lista proporcionada al dominio. La consulta
+de repositorios y la selección del suministro autorizado desde un caso
+de uso están pendientes, al igual que el cálculo por periodo
+mediante lecturas acumuladas.
 
 ## Ejecución
 
@@ -110,9 +137,10 @@ npm install
 npm run pruebas
 ```
 
-Las 41 pruebas verifican conversiones, modelos de lectura,
+Las 49 pruebas verifican conversiones, modelos de lectura,
 consumo acumulado y por intervalos, huecos, duplicados, solapamientos,
-validación de periodos y cobertura temporal.
+validación de periodos, cobertura temporal y consumo por periodo
+mediante intervalos.
 Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Organización prevista
@@ -127,22 +155,22 @@ Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Alcance actual
 
-## Alcance actual
-
 La base verifica la conversión de unidades, el modelo de lecturas,
 el consumo entre lecturas acumuladas compatibles, la suma de intervalos
 y la cobertura temporal frente a un periodo solicitado.
+También calcula el consumo de un periodo utilizando registros por intervalo
+que quedan completamente dentro de sus límites.
 
 La verificación del suministro registrado, el almacenamiento,
 el registro de rechazos y el control de duplicados al incorporar
 lecturas a la persistencia están pendientes.
 
-También están pendientes la selección de lecturas y el cálculo del consumo
-para un periodo arbitrario, los demás requisitos, la API, las interfaces web y móvil,
+También están pendientes el cálculo por periodo mediante lecturas acumuladas,
+los casos de uso para consultar suministros autorizados, los demás requisitos,
+la API, las interfaces web y móvil,
 los trabajadores y la integración real.
 
 La capacidad de 5000 usuarios deberá medirse sobre el sistema completo.
-
 ## Documentación
 
 - [ADR-002: Clean Architecture](../arquitectura/decisiones/ADR-002-clean-architecture.md).

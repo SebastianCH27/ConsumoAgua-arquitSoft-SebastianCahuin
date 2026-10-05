@@ -327,11 +327,17 @@ y solapamientos. Si hay huecos, informa el consumo observado
 y los tramos sin datos con estado incompleto.
 También se validan periodos y se evalúa su cobertura temporal,
 indicando tramos sin datos al inicio, en medio o al final.
-Esta evaluación no prorratea cantidades ni calcula el consumo
-de un periodo arbitrario; la selección de lecturas para esa consulta está pendiente.
+Esta evaluación comprueba fechas y no prorratea cantidades.
 
-Se aprobaron 41 pruebas de conversiones, lecturas, ambas modalidades de cálculo,
-periodos y cobertura temporal.
+Se agregó el cálculo del consumo de un periodo usando registros por intervalo.
+Excluye intervalos externos, conserva las lecturas utilizadas y señala
+los tramos sin datos. Si una lectura cruza un límite del periodo,
+devuelve un estado no calculable sin dividir su cantidad.
+El cálculo por periodo mediante lecturas acumuladas y la consulta
+de suministros autorizados desde casos de uso siguen pendientes.
+
+Se aprobaron 49 pruebas de conversiones, lecturas, ambas modalidades de cálculo,
+periodos, cobertura temporal y consumo por periodo mediante intervalos.
 La implementación de los demás requisitos está pendiente.
 La base actual todavía no incorpora la API, la persistencia,
 las interfaces web y móvil ni la integración externa.
