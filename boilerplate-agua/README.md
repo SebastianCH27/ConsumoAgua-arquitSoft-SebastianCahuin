@@ -53,8 +53,27 @@ La comprobación de la cobertura de periodos completos está pendiente.
 
 La representación en litros y la conversión del resultado se reúnen
 en `src/dominio/calculo-decimal.ts`.
-El cálculo entre lecturas acumuladas utiliza estas funciones.
-Se reutilizarán al incorporar el cálculo por intervalos.
+Los cálculos entre lecturas acumuladas y por intervalos
+utilizan estas funciones compartidas.
+
+## Cuarta etapa: consumo por intervalos
+
+Se incorpora la agregación de consumos por intervalos de RF10.
+Las lecturas se validan y deben pertenecer al mismo suministro y fuente.
+Se ordenan por su fecha inicial sin modificar la lista recibida.
+
+El cálculo admite intervalos contiguos y unidades compatibles.
+Conserva las fechas que delimitan los datos y los identificadores utilizados.
+
+Si existen huecos entre los intervalos, devuelve `incompleto`,
+el consumo observado y los tramos sin datos. No estima el consumo faltante.
+
+Los registros duplicados y los intervalos superpuestos se rechazan
+con estado `no_calculable` y su motivo. La ausencia de lecturas
+también es no calculable; un intervalo válido con consumo cero sí se admite.
+
+La cobertura se refiere al tramo delimitado por las lecturas recibidas.
+La comprobación frente a todo el periodo seleccionado está pendiente.
 
 ## Ejecución
 
@@ -67,8 +86,8 @@ npm install
 npm run pruebas
 ```
 
-Las 25 pruebas verifican conversiones, modelos de lectura,
-consumo entre lecturas acumuladas y estados no calculables.
+Las 33 pruebas verifican conversiones, modelos de lectura,
+consumo acumulado y por intervalos, huecos, duplicados y solapamientos.
 Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Organización prevista
@@ -83,15 +102,16 @@ Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Alcance actual
 
-La base verifica la conversión de unidades, el modelo de lecturas
-y el consumo entre dos lecturas acumuladas compatibles.
+La base verifica la conversión de unidades, el modelo de lecturas,
+el consumo entre lecturas acumuladas compatibles y la suma de intervalos.
 
 La verificación del suministro registrado, el almacenamiento,
-el registro de rechazos y el control de duplicados están pendientes.
+el registro de rechazos y el control de duplicados al incorporar
+lecturas a la persistencia están pendientes.
 
-También están pendientes la agregación de consumos por intervalos,
-la comprobación de periodos completos, los demás requisitos,
-la API, las interfaces web y móvil, los trabajadores y la integración real.
+También están pendientes la comprobación de periodos completos,
+los demás requisitos, la API, las interfaces web y móvil,
+los trabajadores y la integración real.
 
 La capacidad de 5000 usuarios deberá medirse sobre el sistema completo.
 

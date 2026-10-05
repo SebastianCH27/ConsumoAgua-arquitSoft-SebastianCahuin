@@ -322,9 +322,12 @@ como parte de RF10, conservando las fechas y lecturas utilizadas.
 Si faltan datos o no se confirma la compatibilidad y continuidad,
 devuelve un estado no calculable con su motivo.
 
-Se aprobaron 25 pruebas de conversiones, lecturas y consumo acumulado.
-El almacenamiento y la verificación del suministro registrado
-se incorporarán en las siguientes etapas.
+Se agregó la suma de consumos por intervalos, con rechazo de duplicados
+y solapamientos. Si hay huecos, informa el consumo observado
+y los tramos sin datos con estado incompleto.
+La evaluación de la cobertura de todo el periodo seleccionado está pendiente.
+
+Se aprobaron 33 pruebas de conversiones, lecturas y ambas modalidades de cálculo.
 
 La implementación de los demás requisitos está pendiente.
 La base actual todavía no incorpora la API, la persistencia,
