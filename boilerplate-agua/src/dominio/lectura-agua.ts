@@ -4,6 +4,7 @@ import type { UnidadConsumo } from "./unidades-consumo.js";
 export interface LecturaAgua {
 readonly id: string;
 readonly suministroId: string;
+readonly secuenciaMedidorId?: string;
 readonly medidorId?: string;
 readonly fuente: string;
 readonly fechaMedicion: string;
@@ -25,6 +26,10 @@ for (const campo of ["id", "suministroId", "fuente"] as const) {
 
 if (datos.medidorId !== undefined) {
     validarTexto(datos.medidorId, "medidorId");
+}
+
+if (datos.secuenciaMedidorId !== undefined) {
+    validarTexto(datos.secuenciaMedidorId, "secuenciaMedidorId");
 }
 
 convertirConsumo(datos.valor, datos.unidad, datos.unidad);

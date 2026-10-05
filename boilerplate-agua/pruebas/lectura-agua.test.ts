@@ -46,7 +46,7 @@ test("una modificación de los datos de entrada no cambia la lectura creada", ()
 });
 
 test("RF07: rechaza identificadores y fuente vacíos", () => {
-  for (const campo of ["id", "suministroId", "medidorId", "fuente"] as const) {
+  for (const campo of ["id", "suministroId", "medidorId", "secuenciaMedidorId", "fuente"] as const) {
     assert.throws(
       () => crearLectura({ ...datosValidos(), [campo]: " " }),
       new RegExp(campo),

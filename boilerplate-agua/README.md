@@ -11,7 +11,7 @@ Se valida el valor numérico y la unidad antes de la conversión.
 
 La función recibe un consumo disponible. No representa datos
 faltantes como cero ni calcula consumos a partir de lecturas.
-Esas responsabilidades se incorporarán en las siguientes etapas.
+El cálculo a partir de lecturas se desarrolla en una regla separada.
 
 ## Segunda etapa: modelo de lecturas
 
@@ -28,6 +28,27 @@ El adaptador de integración deberá normalizar las fechas del proveedor.
 La lectura creada conserva sus datos aunque se modifique el objeto
 utilizado para crearla.
 
+## Tercera etapa: consumo entre lecturas acumuladas
+
+Se incorpora el cálculo de diferencias correspondiente a una parte de RF10.
+Las lecturas deben pertenecer al mismo suministro, fuente, medidor
+y secuencia continua de medición confirmada.
+
+El campo `secuenciaMedidorId` identifica esa continuidad. Su asignación
+deberá basarse en información confirmada de la integración o administración,
+y actualizarse después de reinicios o cambios de medidor.
+
+Se exigen registros distintos y fechas de medición en orden creciente.
+El resultado incluye consumo en litros y metros cúbicos,
+fechas utilizadas e identificadores de las lecturas.
+
+Si faltan lecturas, no se confirma la continuidad, las lecturas son
+incompatibles o el contador disminuye, se devuelve `no_calculable`
+con su motivo. Los datos faltantes no se convierten en consumo cero.
+
+El cálculo cubre el intervalo entre dos lecturas compatibles.
+La comprobación de la cobertura de periodos completos está pendiente.
+
 ## Ejecución
 
 Se requiere Node.js 22 o superior.
@@ -39,8 +60,8 @@ npm install
 npm run pruebas
 ```
 
-Las 17 pruebas verifican conversiones, metadatos, validaciones de lecturas
-y restricciones de los intervalos.
+Las 25 pruebas verifican conversiones, modelos de lectura,
+consumo entre lecturas acumuladas y estados no calculables.
 Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Organización prevista
@@ -55,13 +76,15 @@ Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Alcance actual
 
-La base verifica la conversión de unidades y el modelo de lecturas.
+La base verifica la conversión de unidades, el modelo de lecturas
+y el consumo entre dos lecturas acumuladas compatibles.
+
 La verificación del suministro registrado, el almacenamiento,
 el registro de rechazos y el control de duplicados están pendientes.
 
-También están pendientes los cálculos a partir de lecturas,
-los demás requisitos, la API, las interfaces web y móvil,
-los trabajadores y la integración real.
+También están pendientes la agregación de consumos por intervalos,
+la comprobación de periodos completos, los demás requisitos,
+la API, las interfaces web y móvil, los trabajadores y la integración real.
 
 La capacidad de 5000 usuarios deberá medirse sobre el sistema completo.
 

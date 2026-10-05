@@ -317,7 +317,12 @@ La base implementa la conversión entre litros y metros cúbicos de RF11
 e incorpora el modelo de lecturas relacionado con RF06
 y las validaciones estructurales de RF07.
 
-Se aprobaron 17 pruebas de conversiones y lecturas.
+También calcula el consumo entre dos lecturas acumuladas compatibles,
+como parte de RF10, conservando las fechas y lecturas utilizadas.
+Si faltan datos o no se confirma la compatibilidad y continuidad,
+devuelve un estado no calculable con su motivo.
+
+Se aprobaron 25 pruebas de conversiones, lecturas y consumo acumulado.
 El almacenamiento y la verificación del suministro registrado
 se incorporarán en las siguientes etapas.
 
