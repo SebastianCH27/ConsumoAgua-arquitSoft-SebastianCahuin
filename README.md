@@ -102,7 +102,7 @@ Cada ADR documenta contexto, alternativas, justificación, consecuencias y verif
 
 El sistema deberá atender al menos **5000 usuarios activos simultáneamente**, considerando en conjunto la web y la aplicación móvil, mientras continúan las actualizaciones y la evaluación de alertas.
 
-La infraestructura y la capacidad deberán validarse mediante pruebas de carga. Las 89 pruebas actuales no demuestran este requisito. Los escenarios y metas se encuentran en [Atributos de calidad](analisis-de-sistema/04-atributos-de-calidad.md).
+La infraestructura y la capacidad deberán validarse mediante pruebas de carga. Las 97 pruebas actuales no demuestran este requisito. Los escenarios y metas se encuentran en [Atributos de calidad](analisis-de-sistema/04-atributos-de-calidad.md).
 
 ## Documentación e índice de entregables
 
