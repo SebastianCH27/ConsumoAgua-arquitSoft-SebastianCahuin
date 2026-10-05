@@ -305,13 +305,21 @@ permanecen pendientes de selección y validación.
 | `arquitectura/enfoque/` | Responsabilidades y dependencias de Clean Architecture. |
 | `README.md` | Presentación, caso de negocio e índice de la documentación. |
 | `.gitignore` | Reglas de exclusión del control de versiones. |
-
+| `boilerplate-agua/` | Código propio del sistema de agua y sus pruebas; desarrollo por etapas. |
 ## Estado del proyecto
 
-El repositorio contiene el análisis y la propuesta arquitectónica.
+El repositorio contiene el análisis, la propuesta arquitectónica
+y una primera base de código propio en `boilerplate-agua/`.
 
-La implementación del sistema de agua y sus pruebas
-están pendientes.
+Se implementó la conversión entre litros y metros cúbicos de RF11,
+con ocho pruebas aprobadas para conversiones y entradas inválidas.
+
+La implementación de los demás requisitos está pendiente.
+La base actual todavía no incorpora la API, la persistencia,
+las interfaces web y móvil ni la integración externa.
+
+Las instrucciones de ejecución y el alcance se encuentran en
+[README del código de agua](boilerplate-agua/README.md).
 
 Antes de habilitar datos reales deberán confirmarse
 la autorización y el contrato de la API externa,
