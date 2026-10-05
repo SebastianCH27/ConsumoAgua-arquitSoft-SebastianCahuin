@@ -9,7 +9,7 @@
   },
   "scripts": {
     "compilar": "tsc -p tsconfig.json",
-    "pruebas": "npm run compilar && node --test dist/pruebas/unidades-consumo.test.js dist/pruebas/lectura-agua.test.js dist/pruebas/consumo-acumulado.test.js dist/pruebas/consumo-intervalos.test.js dist/pruebas/periodo-consumo.test.js dist/pruebas/consumo-periodo-intervalos.test.js dist/pruebas/consumo-periodo-acumulado.test.js dist/pruebas/tarifa-consumo.test.js dist/pruebas/costo-consumo.test.js"
+    "pruebas": "npm run compilar && node --test dist/pruebas/unidades-consumo.test.js dist/pruebas/lectura-agua.test.js dist/pruebas/consumo-acumulado.test.js dist/pruebas/consumo-intervalos.test.js dist/pruebas/periodo-consumo.test.js dist/pruebas/consumo-periodo-intervalos.test.js dist/pruebas/consumo-periodo-acumulado.test.js dist/pruebas/tarifa-consumo.test.js dist/pruebas/costo-consumo.test.js dist/pruebas/alerta-consumo.test.js"
   },
   "devDependencies": {
     "@types/node": "22.18.6",

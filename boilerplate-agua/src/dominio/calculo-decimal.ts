@@ -1,4 +1,5 @@
 import type { LecturaAgua } from "./lectura-agua.js";
+import type { UnidadConsumo } from "./unidades-consumo.js";
 
 export interface CantidadDecimal {
   readonly entero: bigint;
@@ -6,12 +7,20 @@ export interface CantidadDecimal {
 }
 
 export function representarEnLitros(lectura: LecturaAgua): CantidadDecimal {
-  const [coeficiente, potencia = "0"] = lectura.valor.toString().split("e");
+  return representarCantidadEnLitros(lectura.valor, lectura.unidad);
+}
+
+// Los valores y las unidades deben validarse antes de usar esta representación.
+export function representarCantidadEnLitros(
+  valor: number,
+  unidad: UnidadConsumo,
+): CantidadDecimal {
+  const [coeficiente, potencia = "0"] = valor.toString().split("e");
   const [parteEntera, decimales = ""] = coeficiente.split(".");
 
   return {
     entero: BigInt(parteEntera + decimales),
-    exponente: Number(potencia) - decimales.length + (lectura.unidad === "m3" ? 3 : 0),
+    exponente: Number(potencia) - decimales.length + (unidad === "m3" ? 3 : 0),
   };
 }
 

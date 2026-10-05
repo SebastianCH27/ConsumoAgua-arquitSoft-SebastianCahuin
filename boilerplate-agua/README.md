@@ -218,6 +218,40 @@ Esta estimación incluye únicamente el concepto de consumo de agua.
 Los cargos adicionales, impuestos, tramos tarifarios y la facturación
 oficial quedan fuera de esta etapa.
 
+## Décima etapa: evaluación de consumo elevado
+
+Se incorpora una parte de RF22 y una base de configuración de RF34
+en `src/dominio/alerta-consumo.ts`.
+El criterio identifica su versión, suministro, periodo, límite,
+unidad y estado activo. Los límites de las pruebas son ficticios.
+
+La regla recibe resultados de nuestras funciones de consumo por periodo.
+Requiere cobertura completa y un criterio activo que corresponda
+al mismo suministro y a las mismas fechas del periodo solicitado.
+
+Los resultados posibles son:
+
+- `alerta`: el consumo supera estrictamente el límite configurado.
+- `sin_alerta`: el consumo es igual o inferior al límite.
+- `no_evaluable`: el consumo está incompleto o no puede calcularse,
+  o el criterio no está disponible, es inválido, está desactivado
+  o corresponde a otro suministro o periodo.
+
+Las unidades del límite se normalizan mediante las operaciones decimales
+compartidas. Límites equivalentes en litros y metros cúbicos
+producen el mismo resultado. Un límite configurado de cero es válido.
+
+La evaluación conserva el criterio y su versión, el suministro, el periodo,
+el consumo, el límite normalizado, el motivo y las lecturas utilizadas
+y revisadas. Los resultados mantienen sus datos aunque cambien las entradas.
+
+Esta etapa evalúa la condición de consumo elevado.
+El almacenamiento de avisos, su fecha de generación, el control
+de notificaciones duplicadas y la gestión de lectura están pendientes.
+Las reglas de posibles anomalías de RF23 también están pendientes.
+
+
+
 ## Ejecución
 
 Se requiere Node.js 22 o superior.
@@ -229,10 +263,12 @@ npm install
 npm run pruebas
 ```
 
-Las 71 pruebas verifican conversiones, modelos de lectura y tarifa,
+Las 79 pruebas verifican conversiones, modelos de lectura y tarifa,
 consumo acumulado y por intervalos, periodos, cobertura temporal
 y estimaciones de costo. También comprueban redondeo, vigencia de tarifas,
 datos incompletos, trazabilidad y rechazo de resultados fuera de rango.
+Se incluye la evaluación de consumo elevado, los criterios por periodo
+y la equivalencia de límites expresados en litros o metros cúbicos.
 Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Organización prevista
@@ -256,6 +292,11 @@ Se valida un modelo de tarifa simple de prueba con versión y vigencia.
 Se estima el costo del consumo conocido con una tarifa aplicable,
 conservando el importe en céntimos, la información utilizada
 y el estado de cobertura del periodo.
+
+También se evalúa el consumo elevado para periodos completos,
+mediante criterios activos del suministro y periodo correspondientes.
+La evaluación devuelve alerta, ausencia de superación del límite
+o un estado no evaluable con su motivo.
 
 La verificación del suministro registrado, el almacenamiento,
 el registro de rechazos y el control de duplicados al incorporar

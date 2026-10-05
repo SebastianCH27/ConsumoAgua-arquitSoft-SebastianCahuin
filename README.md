@@ -356,8 +356,19 @@ El cálculo incluye únicamente el concepto de consumo de agua.
 Los componentes adicionales, tramos tarifarios, cálculos con varias versiones,
 almacenamiento de versiones y administración de tarifas siguen pendientes.
 
-Se aprobaron 71 pruebas de conversiones, lecturas, tarifas, ambas modalidades
-de cálculo, periodos, cobertura temporal y estimaciones de costo.
+Se incorpora una regla de consumo elevado como parte de RF22
+y una base de configuración de criterios de RF34.
+Evalúa periodos completos frente a un límite activo del suministro
+y periodo correspondientes, conservando la versión del criterio
+y las lecturas utilizadas y revisadas.
+Superar el límite produce `alerta`; igualarlo o quedar por debajo
+produce `sin_alerta`. Los datos incompletos y los criterios
+no aplicables producen `no_evaluable` con su motivo.
+El almacenamiento y la gestión de notificaciones siguen pendientes.
+
+Se aprobaron 79 pruebas de conversiones, lecturas, tarifas, ambas modalidades
+de cálculo, periodos, cobertura temporal, costos y consumo elevado.
+
 
 La implementación de los demás requisitos está pendiente.
 La base actual todavía no incorpora la API, la persistencia,
