@@ -159,6 +159,30 @@ con su motivo; esta etapa no agrega consumos de secuencias diferentes.
 La consulta de suministros autorizados y la recuperación de lecturas
 desde repositorios siguen pendientes.
 
+## Octava etapa: modelo de tarifa simple de prueba
+
+Se incorpora una parte de RF33 como base para las estimaciones de RF15.
+El modelo se encuentra en `src/dominio/tarifa-consumo.ts` y conserva
+identificador, versión, suministro, moneda, precio por metro cúbico
+y fechas de vigencia.
+
+En esta etapa se admite PEN y un precio expresado en céntimos enteros
+no negativos dentro del rango numérico seguro. Por ejemplo,
+250 céntimos equivalen a S/ 2.50 por metro cúbico.
+Los precios utilizados en las pruebas son ficticios.
+Un precio configurado de cero es válido; un precio ausente se rechaza.
+
+Las fechas utilizan el formato UTC interno. La fecha final, si se configura,
+debe ser posterior a la inicial; si se omite, la vigencia queda abierta.
+Al aplicar la tarifa, la fecha final se considerará un límite exclusivo.
+La tarifa creada conserva sus datos aunque cambie el objeto de entrada.
+
+Esta etapa valida el modelo; la aplicación de la tarifa al consumo
+y el cálculo del importe están pendientes.
+Los componentes adicionales, tramos tarifarios, precios con fracciones
+de céntimo y el almacenamiento histórico de versiones también están pendientes.
+No se ha implementado la administración de tarifas ni la facturación oficial.
+
 
 ## Ejecución
 
@@ -171,7 +195,7 @@ npm install
 npm run pruebas
 ```
 
-Las 57 pruebas verifican conversiones, modelos de lectura,
+Las 63 pruebas verifican conversiones, modelos de lectura y tarifa,
 consumo acumulado y por intervalos, huecos, duplicados, solapamientos,
 validación de periodos, cobertura temporal y consumo por periodo
 mediante intervalos y lecturas acumuladas.
@@ -194,7 +218,8 @@ el consumo entre lecturas acumuladas compatibles, la suma de intervalos
 y la cobertura temporal frente a un periodo solicitado.
 También calcula el consumo de un periodo utilizando registros por intervalo
 que quedan completamente dentro de sus límites y lecturas acumuladas compatibles.
-Se conserva la cobertura y la trazabilidad de los registros utilizados.
+Se valida un modelo de tarifa simple de prueba con versión y vigencia.
+Su aplicación al consumo y el cálculo de costos están pendientes.
 
 La verificación del suministro registrado, el almacenamiento,
 el registro de rechazos y el control de duplicados al incorporar

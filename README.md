@@ -340,12 +340,14 @@ Si solo se conoce un tramo del periodo, se informa su consumo
 y la cobertura incompleta. La consulta de suministros autorizados
 y la recuperación de lecturas desde casos de uso siguen pendientes.
 
-Se aprobaron 57 pruebas de conversiones, lecturas, ambas modalidades de cálculo,
-periodos, cobertura temporal y consumo por periodo mediante intervalos
-y lecturas acumuladas.
+Se incorpora un modelo de tarifa simple de prueba, como parte de RF33,
+con identificador, versión, suministro, precio en céntimos por metro cúbico
+y fechas de vigencia. Los precios utilizados son ficticios.
+La aplicación de la tarifa al consumo y el cálculo de costos están pendientes,
+al igual que los componentes adicionales, tramos y almacenamiento de versiones.
 
-Se aprobaron 49 pruebas de conversiones, lecturas, ambas modalidades de cálculo,
-periodos, cobertura temporal y consumo por periodo mediante intervalos.
+Se aprobaron 63 pruebas de conversiones, lecturas, tarifas, ambas modalidades
+de cálculo, periodos, cobertura temporal y consumo por periodo.
 La implementación de los demás requisitos está pendiente.
 La base actual todavía no incorpora la API, la persistencia,
 las interfaces web y móvil ni la integración externa.
