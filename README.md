@@ -325,10 +325,13 @@ devuelve un estado no calculable con su motivo.
 Se agregó la suma de consumos por intervalos, con rechazo de duplicados
 y solapamientos. Si hay huecos, informa el consumo observado
 y los tramos sin datos con estado incompleto.
-La evaluación de la cobertura de todo el periodo seleccionado está pendiente.
+También se validan periodos y se evalúa su cobertura temporal,
+indicando tramos sin datos al inicio, en medio o al final.
+Esta evaluación no prorratea cantidades ni calcula el consumo
+de un periodo arbitrario; la selección de lecturas para esa consulta está pendiente.
 
-Se aprobaron 33 pruebas de conversiones, lecturas y ambas modalidades de cálculo.
-
+Se aprobaron 41 pruebas de conversiones, lecturas, ambas modalidades de cálculo,
+periodos y cobertura temporal.
 La implementación de los demás requisitos está pendiente.
 La base actual todavía no incorpora la API, la persistencia,
 las interfaces web y móvil ni la integración externa.

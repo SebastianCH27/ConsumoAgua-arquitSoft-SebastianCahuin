@@ -47,7 +47,8 @@ incompatibles o el contador disminuye, se devuelve `no_calculable`
 con su motivo. Los datos faltantes no se convierten en consumo cero.
 
 El cálculo cubre el intervalo entre dos lecturas compatibles.
-La comprobación de la cobertura de periodos completos está pendiente.
+La quinta etapa permite comparar la cobertura temporal disponible
+con un periodo solicitado.
 
 ### Operaciones decimales compartidas
 
@@ -73,7 +74,30 @@ con estado `no_calculable` y su motivo. La ausencia de lecturas
 también es no calculable; un intervalo válido con consumo cero sí se admite.
 
 La cobertura se refiere al tramo delimitado por las lecturas recibidas.
-La comprobación frente a todo el periodo seleccionado está pendiente.
+La quinta etapa añade la comprobación frente al periodo seleccionado.
+
+## Quinta etapa: periodos y cobertura temporal
+
+Se incorpora una parte de RF12 y RF13: la definición de un periodo
+y la evaluación de los tramos disponibles frente a sus fechas.
+El periodo debe tener un inicio anterior al fin y fechas internas UTC válidas.
+Las lecturas y los periodos comparten el validador de `src/dominio/fecha-utc.ts`.
+
+La evaluación detecta datos faltantes al inicio, en medio y al final.
+Si no hay tramos disponibles, todo el periodo queda sin datos.
+El resultado indica cobertura `completo` o `incompleto`
+y conserva el periodo solicitado y los tramos faltantes.
+
+Esta función solo evalúa fechas. Los tramos deberán provenir de datos
+validados y compatibles del mismo suministro, seleccionados por el caso de uso.
+La unión temporal de tramos superpuestos no suma sus cantidades
+ni resuelve duplicados; el cálculo de consumos por intervalo
+sigue rechazando registros duplicados y solapamientos.
+
+Se limita la cobertura a las fechas solicitadas, sin prorratear
+ni inventar cantidades. La obtención del consumo correspondiente
+a un periodo arbitrario y la selección de lecturas están pendientes.
+La configuración de periodos de cada suministro también está pendiente.
 
 ## Ejecución
 
@@ -86,8 +110,9 @@ npm install
 npm run pruebas
 ```
 
-Las 33 pruebas verifican conversiones, modelos de lectura,
-consumo acumulado y por intervalos, huecos, duplicados y solapamientos.
+Las 41 pruebas verifican conversiones, modelos de lectura,
+consumo acumulado y por intervalos, huecos, duplicados, solapamientos,
+validación de periodos y cobertura temporal.
 Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Organización prevista
@@ -102,15 +127,18 @@ Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Alcance actual
 
+## Alcance actual
+
 La base verifica la conversión de unidades, el modelo de lecturas,
-el consumo entre lecturas acumuladas compatibles y la suma de intervalos.
+el consumo entre lecturas acumuladas compatibles, la suma de intervalos
+y la cobertura temporal frente a un periodo solicitado.
 
 La verificación del suministro registrado, el almacenamiento,
 el registro de rechazos y el control de duplicados al incorporar
 lecturas a la persistencia están pendientes.
 
-También están pendientes la comprobación de periodos completos,
-los demás requisitos, la API, las interfaces web y móvil,
+También están pendientes la selección de lecturas y el cálculo del consumo
+para un periodo arbitrario, los demás requisitos, la API, las interfaces web y móvil,
 los trabajadores y la integración real.
 
 La capacidad de 5000 usuarios deberá medirse sobre el sistema completo.
