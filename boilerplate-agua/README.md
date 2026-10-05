@@ -49,6 +49,13 @@ con su motivo. Los datos faltantes no se convierten en consumo cero.
 El cálculo cubre el intervalo entre dos lecturas compatibles.
 La comprobación de la cobertura de periodos completos está pendiente.
 
+### Operaciones decimales compartidas
+
+La representación en litros y la conversión del resultado se reúnen
+en `src/dominio/calculo-decimal.ts`.
+El cálculo entre lecturas acumuladas utiliza estas funciones.
+Se reutilizarán al incorporar el cálculo por intervalos.
+
 ## Ejecución
 
 Se requiere Node.js 22 o superior.

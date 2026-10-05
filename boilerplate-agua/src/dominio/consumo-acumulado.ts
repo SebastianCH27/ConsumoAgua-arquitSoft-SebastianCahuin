@@ -1,5 +1,6 @@
 import { crearLectura } from "./lectura-agua.js";
 import type { LecturaAgua } from "./lectura-agua.js";
+import { representarEnLitros, obtenerUnidadesConsumo } from "./calculo-decimal.js";
 
 export type ResultadoConsumoAcumulado =
   | {
@@ -68,15 +69,11 @@ export function calcularConsumoAcumulado(
     return noCalculable("El valor disminuyó; debe revisarse un posible reinicio o corrección.");
   }
 
-  const litros = Number(`${diferencia}e${exponente}`);
-  const metrosCubicos = Number(`${diferencia}e${exponente - 3}`);
+ const consumo = obtenerUnidadesConsumo(diferencia, exponente);
 
-  if (
-    !Number.isFinite(litros) || !Number.isFinite(metrosCubicos) ||
-    (diferencia > 0n && (litros === 0 || metrosCubicos === 0))
-  ) {
-    return noCalculable("El consumo queda fuera del rango numérico admitido.");
-  }
+if (consumo === null) {
+  return noCalculable("El consumo queda fuera del rango numérico admitido.");
+}
 
   return {
     estado: "calculado",
@@ -84,8 +81,8 @@ export function calcularConsumoAcumulado(
     medidorId: inicial.medidorId,
     desde: inicial.fechaMedicion,
     hasta: final.fechaMedicion,
-    consumoLitros: litros,
-    consumoMetrosCubicos: metrosCubicos,
+    consumoLitros: consumo.litros,
+consumoMetrosCubicos: consumo.metrosCubicos,
     lecturasUsadas: [inicial.id, final.id],
   };
 }
@@ -94,12 +91,3 @@ function noCalculable(motivo: string): ResultadoConsumoAcumulado {
   return { estado: "no_calculable", motivo };
 }
 
-function representarEnLitros(lectura: LecturaAgua) {
-  const [coeficiente, potencia = "0"] = lectura.valor.toString().split("e");
-  const [parteEntera, decimales = ""] = coeficiente.split(".");
-
-  return {
-    entero: BigInt(parteEntera + decimales),
-    exponente: Number(potencia) - decimales.length + (lectura.unidad === "m3" ? 3 : 0),
-  };
-}
