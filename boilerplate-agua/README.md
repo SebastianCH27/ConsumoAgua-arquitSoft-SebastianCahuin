@@ -123,8 +123,42 @@ No se distribuye el consumo suponiendo una tasa constante.
 
 La regla trabaja con una lista proporcionada al dominio. La consulta
 de repositorios y la selección del suministro autorizado desde un caso
-de uso están pendientes, al igual que el cálculo por periodo
+de uso están pendientes. La séptima etapa incorpora el cálculo por periodo
 mediante lecturas acumuladas.
+
+## Séptima etapa: consumo de un periodo mediante lecturas acumuladas
+
+Se incorpora una parte de RF10, RF12 y RF13 en
+`src/dominio/consumo-periodo-acumulado.ts`.
+Se seleccionan las lecturas acumuladas dentro del periodo, incluyendo
+las ubicadas exactamente en sus límites, y se ordenan sin modificar la entrada.
+
+Se requieren al menos dos lecturas. Antes de calcular la diferencia entre
+la primera y la última, se revisan todos los pares consecutivos.
+Deben conservar suministro, fuente, medidor y secuencia continua confirmada,
+con fechas crecientes y valores de contador que no disminuyan.
+
+`lecturasUsadas` identifica los dos extremos utilizados para la diferencia.
+`lecturasRevisadas` conserva todos los registros comprobados, incluidos
+los intermedios. Los duplicados y las lecturas con la misma hora de medición
+se rechazan, al igual que las incompatibilidades y los resultados fuera de rango.
+
+Dos extremos compatibles permiten conocer el consumo total entre sus fechas
+aunque no haya lecturas intermedias. Esto no permite determinar
+cómo se distribuyó el consumo por hora o por día.
+
+Si los extremos no coinciden con los límites solicitados, se devuelve
+`incompleto`, el consumo del tramo conocido y las fechas faltantes
+al inicio o al final. Si hay menos de dos lecturas dentro del periodo,
+se devuelve `no_calculable`; no se interpolan valores con lecturas externas.
+
+Un consumo conocido de cero es válido. Las disminuciones del contador
+y los cambios de medidor o secuencia producen un estado no calculable
+con su motivo; esta etapa no agrega consumos de secuencias diferentes.
+
+La consulta de suministros autorizados y la recuperación de lecturas
+desde repositorios siguen pendientes.
+
 
 ## Ejecución
 
@@ -137,10 +171,10 @@ npm install
 npm run pruebas
 ```
 
-Las 49 pruebas verifican conversiones, modelos de lectura,
+Las 57 pruebas verifican conversiones, modelos de lectura,
 consumo acumulado y por intervalos, huecos, duplicados, solapamientos,
 validación de periodos, cobertura temporal y consumo por periodo
-mediante intervalos.
+mediante intervalos y lecturas acumuladas.
 Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Organización prevista
@@ -159,14 +193,15 @@ La base verifica la conversión de unidades, el modelo de lecturas,
 el consumo entre lecturas acumuladas compatibles, la suma de intervalos
 y la cobertura temporal frente a un periodo solicitado.
 También calcula el consumo de un periodo utilizando registros por intervalo
-que quedan completamente dentro de sus límites.
+que quedan completamente dentro de sus límites y lecturas acumuladas compatibles.
+Se conserva la cobertura y la trazabilidad de los registros utilizados.
 
 La verificación del suministro registrado, el almacenamiento,
 el registro de rechazos y el control de duplicados al incorporar
 lecturas a la persistencia están pendientes.
 
-También están pendientes el cálculo por periodo mediante lecturas acumuladas,
-los casos de uso para consultar suministros autorizados, los demás requisitos,
+También están pendientes los casos de uso para consultar suministros autorizados,
+la recuperación de lecturas desde repositorios, los demás requisitos,
 la API, las interfaces web y móvil,
 los trabajadores y la integración real.
 

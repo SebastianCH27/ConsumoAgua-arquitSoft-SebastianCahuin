@@ -333,8 +333,16 @@ Se agregó el cálculo del consumo de un periodo usando registros por intervalo.
 Excluye intervalos externos, conserva las lecturas utilizadas y señala
 los tramos sin datos. Si una lectura cruza un límite del periodo,
 devuelve un estado no calculable sin dividir su cantidad.
-El cálculo por periodo mediante lecturas acumuladas y la consulta
-de suministros autorizados desde casos de uso siguen pendientes.
+También se calcula el consumo de un periodo mediante lecturas acumuladas
+compatibles. Se revisan los registros intermedios antes de restar
+los extremos y se conserva la relación con todas las lecturas revisadas.
+Si solo se conoce un tramo del periodo, se informa su consumo
+y la cobertura incompleta. La consulta de suministros autorizados
+y la recuperación de lecturas desde casos de uso siguen pendientes.
+
+Se aprobaron 57 pruebas de conversiones, lecturas, ambas modalidades de cálculo,
+periodos, cobertura temporal y consumo por periodo mediante intervalos
+y lecturas acumuladas.
 
 Se aprobaron 49 pruebas de conversiones, lecturas, ambas modalidades de cálculo,
 periodos, cobertura temporal y consumo por periodo mediante intervalos.
