@@ -314,7 +314,7 @@ El repositorio contiene el análisis, la propuesta arquitectónica
 y una primera base de código propio en `boilerplate-agua/`.
 
 La base implementa la conversión entre litros y metros cúbicos de RF11
-e incorpora el modelo de lecturas relacionado con RF06
+se incorpora el modelo de lecturas relacionado con RF06
 y las validaciones estructurales de RF07.
 
 También calcula el consumo entre dos lecturas acumuladas compatibles,
@@ -343,11 +343,22 @@ y la recuperación de lecturas desde casos de uso siguen pendientes.
 Se incorpora un modelo de tarifa simple de prueba, como parte de RF33,
 con identificador, versión, suministro, precio en céntimos por metro cúbico
 y fechas de vigencia. Los precios utilizados son ficticios.
-La aplicación de la tarifa al consumo y el cálculo de costos están pendientes,
-al igual que los componentes adicionales, tramos y almacenamiento de versiones.
 
-Se aprobaron 63 pruebas de conversiones, lecturas, tarifas, ambas modalidades
-de cálculo, periodos, cobertura temporal y consumo por periodo.
+Se estima el costo utilizando los resultados del consumo por periodo
+y una tarifa aplicable a todo el tramo conocido, como parte de RF15 y RF16.
+El resultado conserva el consumo, las lecturas, la tarifa y el concepto incluido.
+El importe se expresa en céntimos y se redondea una sola vez al finalizar.
+Si faltan datos, se indica que la estimación está incompleta.
+Si falta una tarifa aplicable o el consumo no puede calcularse,
+se devuelve un estado no estimable con su motivo.
+
+El cálculo incluye únicamente el concepto de consumo de agua.
+Los componentes adicionales, tramos tarifarios, cálculos con varias versiones,
+almacenamiento de versiones y administración de tarifas siguen pendientes.
+
+Se aprobaron 71 pruebas de conversiones, lecturas, tarifas, ambas modalidades
+de cálculo, periodos, cobertura temporal y estimaciones de costo.
+
 La implementación de los demás requisitos está pendiente.
 La base actual todavía no incorpora la API, la persistencia,
 las interfaces web y móvil ni la integración externa.

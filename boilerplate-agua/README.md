@@ -177,12 +177,46 @@ debe ser posterior a la inicial; si se omite, la vigencia queda abierta.
 Al aplicar la tarifa, la fecha final se considerará un límite exclusivo.
 La tarifa creada conserva sus datos aunque cambie el objeto de entrada.
 
-Esta etapa valida el modelo; la aplicación de la tarifa al consumo
-y el cálculo del importe están pendientes.
+Esta etapa valida el modelo. La novena aplica la tarifa al consumo
+y calcula el importe estimado.
 Los componentes adicionales, tramos tarifarios, precios con fracciones
-de céntimo y el almacenamiento histórico de versiones también están pendientes.
+de céntimo y el almacenamiento histórico de versiones siguen pendientes.
 No se ha implementado la administración de tarifas ni la facturación oficial.
 
+## Novena etapa: estimación del costo de consumo
+
+Se incorpora una parte de RF15 y RF16 en `src/dominio/costo-consumo.ts`.
+La función recibe resultados de nuestras reglas de consumo por periodo,
+calculados mediante intervalos o lecturas acumuladas, y una tarifa de prueba.
+
+La tarifa debe corresponder al suministro y estar vigente durante todo
+el tramo conocido entre `desde` y `hasta`. La fecha final de vigencia
+es exclusiva: un consumo cuyo tramo termina exactamente en esa fecha
+puede estimarse, porque no incluye consumo posterior a ese límite.
+Si hay un cambio de tarifa dentro del tramo conocido, esta etapa
+devuelve `no_estimable`; el cálculo con varias versiones queda pendiente.
+
+El importe se expresa en céntimos enteros de PEN. Se multiplica
+el consumo en metros cúbicos por el precio configurado y se redondea
+una sola vez al céntimo más cercano; medio céntimo se redondea hacia arriba.
+Por ejemplo, 3 metros cúbicos a 250 céntimos producen 750 céntimos,
+equivalentes a S/ 7.50. Los precios de las pruebas son ficticios.
+
+El resultado conserva el consumo, el periodo, las lecturas utilizadas,
+los tramos sin datos, la tarifa aplicada y el concepto incluido.
+Para lecturas acumuladas también conserva todas las lecturas revisadas.
+La estimación mantiene sus datos aunque cambien los objetos de entrada.
+
+Si el consumo está incompleto, se estima únicamente la cantidad conocida
+y se conserva el estado `incompleto`, sin estimar el consumo faltante.
+Si el consumo no puede calcularse, falta una tarifa aplicable
+o el importe excede el rango numérico seguro, se devuelve `no_estimable`
+con su motivo. Un consumo conocido de cero o un precio configurado
+de cero sí permiten un importe de cero.
+
+Esta estimación incluye únicamente el concepto de consumo de agua.
+Los cargos adicionales, impuestos, tramos tarifarios y la facturación
+oficial quedan fuera de esta etapa.
 
 ## Ejecución
 
@@ -195,10 +229,10 @@ npm install
 npm run pruebas
 ```
 
-Las 63 pruebas verifican conversiones, modelos de lectura y tarifa,
-consumo acumulado y por intervalos, huecos, duplicados, solapamientos,
-validación de periodos, cobertura temporal y consumo por periodo
-mediante intervalos y lecturas acumuladas.
+Las 71 pruebas verifican conversiones, modelos de lectura y tarifa,
+consumo acumulado y por intervalos, periodos, cobertura temporal
+y estimaciones de costo. También comprueban redondeo, vigencia de tarifas,
+datos incompletos, trazabilidad y rechazo de resultados fuera de rango.
 Se ejecutan con Node.js después de compilar TypeScript.
 
 ## Organización prevista
@@ -219,7 +253,9 @@ y la cobertura temporal frente a un periodo solicitado.
 También calcula el consumo de un periodo utilizando registros por intervalo
 que quedan completamente dentro de sus límites y lecturas acumuladas compatibles.
 Se valida un modelo de tarifa simple de prueba con versión y vigencia.
-Su aplicación al consumo y el cálculo de costos están pendientes.
+Se estima el costo del consumo conocido con una tarifa aplicable,
+conservando el importe en céntimos, la información utilizada
+y el estado de cobertura del periodo.
 
 La verificación del suministro registrado, el almacenamiento,
 el registro de rechazos y el control de duplicados al incorporar
